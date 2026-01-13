@@ -25,7 +25,9 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Lib,
+      Model.TiposDados,
+      Controller.GerenciaFuncionarios
   other-modules:
       Paths_manager
   autogen-modules:
@@ -34,7 +36,8 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      base >=4.7 && <5,
+      time
   default-language: Haskell2010
 
 executable manager-exe
@@ -64,4 +67,5 @@ test-suite manager-test
   build-depends:
       base >=4.7 && <5
     , manager
+    , time
   default-language: Haskell2010

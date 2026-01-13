@@ -13,8 +13,7 @@ data Cargo = Cargo{
     cargaHoraria :: Int,
     salario :: Double,
     idSupervisor :: Id,
-    deptoAssociado :: Id,
-    dataAdmissaoCargo :: Day
+    deptoAssociado :: Id
 } deriving (Show,Read, Eq)
 
 data Departamento = Departamento{
@@ -23,8 +22,7 @@ data Departamento = Departamento{
     descricaoDepto :: String,
     idGerenteDepto :: Id, -- Chave estrangeira. Referência ao Funcionario.
     qtdFuncionarioDepto :: Int,
-    registroPresencaDepto :: Registro, -- Esse aqui não sei bem qual tipo...
-    dataAdmissaoDepto :: Day
+    registroPresencaDepto :: Registro -- Esse aqui não sei bem qual tipo...
 } deriving (Show,Read,Eq)
     
 data Status = Ativo |  Afastado | Desligado deriving(Show,Read,Eq)
@@ -42,12 +40,13 @@ data Funcionario = Funcionario{
     cargoFunc :: Id, -- Chave estrangeira. Referência ao Cargo.
     deptoFunc :: Id, -- Chave estrangeira. Referência ao Departamento.
     historicoAlteracoesFunc :: [String],
-    cargaHorariaFunc :: Int -- Chave estrangeira ???
+    cargaHorariaFunc :: Int, -- Chave estrangeira ???
+    dataAdmissaoFunc :: Day
 
 } deriving (Show, Read, Eq)
 
 data SistemaBancoDadosRH = SistemaBancoDadosRH {
-    funcionarios :: [Funcionarios]
-    cargos :: [Cargo]
+    funcionarios :: [Funcionario],
+    cargos :: [Cargo],
     departamento :: [Departamento]
 } deriving (Show, Read)
