@@ -18,7 +18,6 @@ inserirPresenca cpf dia presenca sistema =
 
 validarPresenca :: Presenca -> Either String ()
 validarPresenca p
-  | not (compareceu p) && null (justificativa p) = Left "Funcionário ausente deve possuir justificativa."
   | compareceu p && not (null (justificativa p)) = Left "Funcionário que compareceu não deve possuir justificativa."
   | not (compareceu p) && checkIn p /= checkOut p = Left "Funcionário ausente não pode ter horário de entrada ou saída."
   | compareceu p && checkOut p <= checkIn p = Left "Horário de saída deve ser posterior ao horário de entrada."

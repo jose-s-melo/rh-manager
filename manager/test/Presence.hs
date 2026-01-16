@@ -63,8 +63,8 @@ registrarPresencaDuplicadaTeste = do
 presencaAusenteSemJustificativaTeste :: IO ()
 presencaAusenteSemJustificativaTeste = do
   case validarPresenca presencaAusenteSemJustificativa of
-    Left _ -> assert True "Validação funcionou corretamente."
-    Right _ -> assert False "Erro: aceitou ausência sem justificativa."
+    Left _ -> assert False "Erro: A validação não funcionou corretamente."
+    Right _ -> assert True "Aceitou ausência sem justificativa."
 
 presencaCompareceuComJustificativaTeste :: IO ()
 presencaCompareceuComJustificativaTeste = do
