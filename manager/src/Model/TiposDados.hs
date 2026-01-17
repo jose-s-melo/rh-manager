@@ -67,6 +67,24 @@ data SistemaDePresenca = SistemaDePresenca {
     presencasRegistradas :: Map.Map CPF (Map.Map Day Presenca)
 } deriving (Show, Read, Eq)
 
+data TipoAfastamento = AfastamentoMedico | AcidenteDeTrabalho | LicencaMaternidade | LicencaPaternidade | AusenciaJustificada deriving (Show, Read, Eq)
+
+data Documentacao = Documentacao {
+    descricaoDocumento :: String,
+    dataEnvioDocumento :: Day
+} deriving (Show, Read, Eq)
+
+data Afastamento = Afastamento {
+    idAfastamento :: Id,
+    cpfFuncionario :: CPF,
+    tipoAfastamento :: TipoAfastamento,
+    dataInicio :: Day,
+    dataFim :: Day,
+    descricaoAfastamento :: String,
+    documentacao :: Maybe Documentacao
+} deriving (Show, Read, Eq)
+
+
 data TiposDeLicenca = Casamento | Maternidade | Paternidade | Atestado | Luto | DoacaoSangue deriving (Show, Read, Eq)
 
 data Licenca = Licenca {
