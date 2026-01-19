@@ -75,3 +75,51 @@ data Licenca = Licenca {
     dataFim :: Day,
     descricao :: String
 } deriving (Show, Read, Eq)
+
+
+
+
+
+
+
+
+
+
+data StatusFerias = Planejada| EmAndamento| Concluida deriving (Show, Read, Eq)
+
+data Ferias = Ferias { 
+    inicioFerias :: Day, 
+    fimFerias :: Day,
+    diasUtilizados :: Int, 
+    statusFerias :: StatusFerias
+} deriving (Show, Read, Eq)
+
+data PeriodoAquisitivo = PeriodoAquisitivo { 
+    inicioAquisitivo :: Day, 
+    fimAquisitivo :: Day
+} deriving (Show, Read, Eq)
+
+data PeriodoConcessivo = PeriodoConcessivo { 
+    inicioConcessivo :: Day, 
+    fimConcessivo :: Day
+} deriving (Show, Read, Eq)
+
+data StatusCiclo = Vigente | Concluido | Vencido | Esperado deriving (Show, Read, Eq)
+
+data CicloFerias = CicloFerias { 
+    periodoAquisitivo :: PeriodoAquisitivo, 
+    periodoConcessivo :: PeriodoConcessivo, 
+    saldoDias :: Int, 
+    faltas :: Int,
+    feriasDoCiclo :: [Ferias],
+    statusCiclo :: StatusCiclo
+} deriving (Show, Read, Eq)
+
+data RegistroFeriasFuncionario = RegistroFeriasFuncionario { 
+    dataAdmissao :: Day,
+    ciclos :: [CicloFerias]
+} deriving (Show)
+
+data GerenciadorFerias = GerenciadorFerias { 
+    registros :: Map.Map CPF RegistroFeriasFuncionario
+} deriving (Show)

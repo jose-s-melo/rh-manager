@@ -14,8 +14,8 @@ main = do
 
   putStrLn " INICIANDO TESTES DO SISTEMA RH "
 
-  --runPresenceTests
-  --runFuncionarioTests
+  runPresenceTests
+  runFuncionarioTests
   runLicenseTests
 
   putStrLn " TESTES FINALIZADOS "

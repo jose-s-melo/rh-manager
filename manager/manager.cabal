@@ -29,7 +29,8 @@ library
       Model.TiposDados,
       Controller.GerenciaFuncionarios,
       Controller.ControladorPresenca,
-      Controller.JornadaLicenca
+      Controller.JornadaLicenca,
+      Controller.GerenciarFerias
   other-modules:
       Paths_manager
   autogen-modules:
