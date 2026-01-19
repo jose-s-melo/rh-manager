@@ -59,3 +59,9 @@ exibirPresenca :: (Day, Presenca) -> IO ()
 exibirPresenca (dia, p)
   | compareceu p = putStrLn $ show dia ++ " - compareceu"
   | otherwise = putStrLn $ show dia ++ " - ausente - justificativa: " ++ justificativa p
+
+faltasInjustificadas :: CPF -> Day -> Day -> SistemaDePresenca -> Int
+faltasInjustificadas cpf inicio fim sistema =
+  length [ () | (dia, p) <- presencas, dia >= inicio, dia <= fim, not (compareceu p), null (justificativa p)]
+  where
+    presencas = maybe [] Map.toList $ Map.lookup cpf (presencasRegistradas sistema)
