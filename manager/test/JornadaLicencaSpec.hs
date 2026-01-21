@@ -9,9 +9,13 @@ assert condicao msg
   | condicao  = putStrLn $ "Testes PASSARAM:  " ++ msg
   | otherwise = putStrLn $ "Testes FALHARAM: " ++ msg
 
+--
+-- SETUP PARA OS TESTES DE LICENÇA
+--
+
 inicio1, fimValido, fimInvalido, fimInvertido :: Day
 inicio1      = fromGregorian 2024 6 1
-fimValido    = fromGregorian 2024 6 4   -- 3 dias
+fimValido    = fromGregorian 2024 6 4
 fimInvalido  = fromGregorian 2024 6 10
 fimInvertido = fromGregorian 2024 5 30
 
@@ -56,13 +60,14 @@ licencaDatasInvertidasTeste = do
   assert (not (verificarSeLicencaValida licencaDatasInvertidas))
     "Licença com datas invertidas foi rejeitada."
 
-
--- Testes para Ciclo de Folga
+--
+-- SETUP PARA OS TESTES DE CICLO DE FOLGA
+--
 
 ultimaFolgaData, dataFolgaValida, dataFolgaInvalida :: Day
 ultimaFolgaData = fromGregorian 2024 6 1
-dataFolgaValida = fromGregorian 2024 6 5   -- 4 dias após últimaFolga (válido < 7 dias)
-dataFolgaInvalida = fromGregorian 2024 6 10 -- 9 dias após últimaFolga (inválido >= 7 dias)
+dataFolgaValida = fromGregorian 2024 6 5   
+dataFolgaInvalida = fromGregorian 2024 6 10
 
 cicloFolgaValido :: CicloFolga
 cicloFolgaValido = Folga
@@ -112,13 +117,124 @@ verificaLegalidadeCicloDatasInvertidosTeste = do
 
 buscaDiaDeFolgaComDiasFaltantesTeste :: IO ()
 buscaDiaDeFolgaComDiasFaltantesTeste = do
-  -- Teste para quando diasFaltantes > 0 (deve retornar Just com a data de folga)
-  -- Nota: Este teste assume uma implementação de diasFaltantes que não está visível aqui
   let resultado = buscaDiaDeFolga cicloFolgaValido
   assert (resultado == Just dataFolgaValida)
     "Busca de dia de folga com dias faltantes retornou a data corretamente."
 
+--
+-- SETUP PARA TESTES DE ESCALA SEMANAL E JORNADA DIÁRIA
+-- 
 
+jornadaValida4h :: JornadaDiaria
+jornadaValida4h = JornadaDiaria
+  { inicio = 8
+  , fim = 12
+  }
+
+jornadaValida8h :: JornadaDiaria
+jornadaValida8h = JornadaDiaria
+  { inicio = 8
+  , fim = 16
+  }
+
+jornadaInvalidaInvertida :: JornadaDiaria
+jornadaInvalidaInvertida = JornadaDiaria
+  { inicio = 14
+  , fim = 10
+  }
+
+jornadaInvalidaExcesso :: JornadaDiaria
+jornadaInvalidaExcesso = JornadaDiaria
+  { inicio = 8
+  , fim = 18
+  }
+
+diasSemana :: [Day]
+diasSemana =
+  [ fromGregorian 2024 6 3
+  , fromGregorian 2024 6 4
+  , fromGregorian 2024 6 5
+  , fromGregorian 2024 6 6
+  , fromGregorian 2024 6 7
+  ]
+
+escalaSemanalValida40h :: EscalaSemanal
+escalaSemanalValida40h = EscalaSemanal
+  { idFuncionarioSemanal = "12345678900"
+  , diasTrabalho = diasSemana
+  , jornadas = replicate 5 jornadaValida8h
+  }
+
+escalaSemanalInvalidaHoras :: EscalaSemanal
+escalaSemanalInvalidaHoras = EscalaSemanal
+  { idFuncionarioSemanal = "12345678900"
+  , diasTrabalho = diasSemana
+  , jornadas = replicate 5 jornadaInvalidaExcesso
+  }
+
+escalaSemanalEstruturaInvalida :: EscalaSemanal
+escalaSemanalEstruturaInvalida = EscalaSemanal
+  { idFuncionarioSemanal = "12345678900"
+  , diasTrabalho = diasSemana
+  , jornadas = [jornadaValida8h] -- tamanhos diferentes
+  }
+
+
+
+calculaHorasPorDiaTeste :: IO ()
+calculaHorasPorDiaTeste = do
+  assert (calculaHorasTrabalhadasPorDia jornadaValida4h == 4)
+    "Cálculo de horas diárias (4h) funcionou corretamente."
+
+calculaHorasPorDia8hTeste :: IO ()
+calculaHorasPorDia8hTeste = do
+  assert (calculaHorasTrabalhadasPorDia jornadaValida8h == 8)
+    "Cálculo de horas diárias (8h) funcionou corretamente."
+
+calculaHorasSemanaTeste :: IO ()
+calculaHorasSemanaTeste = do
+  assert (calculaHorasTrabalhadasPorSemana escalaSemanalValida40h == 40)
+    "Cálculo de horas semanais (40h) funcionou corretamente."
+  
+verificaJornadaValidaTeste :: IO ()
+verificaJornadaValidaTeste = do
+  assert (verificaJornadaValida jornadaValida8h)
+    "Jornada válida foi aceita."
+
+verificaJornadaInvalidaTeste :: IO ()
+verificaJornadaInvalidaTeste = do
+  assert (not (verificaJornadaValida jornadaInvalidaInvertida))
+    "Jornada com horários invertidos foi rejeitada."
+
+verificaEscalaValidaTeste :: IO ()
+verificaEscalaValidaTeste = do
+  assert (verificaEscalaValida escalaSemanalValida40h)
+    "Escala semanal válida foi aceita."
+
+verificaEscalaEstruturaInvalidaTeste :: IO ()
+verificaEscalaEstruturaInvalidaTeste = do
+  assert (not (verificaEscalaValida escalaSemanalEstruturaInvalida))
+    "Escala com dias e jornadas inconsistentes foi rejeitada."
+  
+verificaCargaHorariaDiariaValidaTeste :: IO ()
+verificaCargaHorariaDiariaValidaTeste = do
+  assert (verificaLegalidadeCargaHorariaDiaria jornadaValida8h)
+    "Carga horária diária válida (8h) foi aceita."
+
+verificaCargaHorariaDiariaInvalidaTeste :: IO ()
+verificaCargaHorariaDiariaInvalidaTeste = do
+  assert (not (verificaLegalidadeCargaHorariaDiaria jornadaInvalidaExcesso))
+    "Carga horária diária acima de 8h foi rejeitada."
+
+verificaCargaHorariaSemanalValidaTeste :: IO ()
+verificaCargaHorariaSemanalValidaTeste = do
+  assert (verificaLegalidadeCargaHorariaSemanal escalaSemanalValida40h)
+    "Carga horária semanal válida (40h) foi aceita."
+
+verificaCargaHorariaSemanalInvalidaTeste :: IO ()
+verificaCargaHorariaSemanalInvalidaTeste = do
+  assert (not (verificaLegalidadeCargaHorariaSemanal escalaSemanalInvalidaHoras))
+    "Carga horária semanal acima de 44h foi rejeitada."
 
 
 runLicenseTests :: IO ()
@@ -135,3 +251,18 @@ runLicenseTests = do
   verificaLegalidadeCicloInvalidoTeste
   verificaLegalidadeCicloMesmoDiaTeste
   verificaLegalidadeCicloDatasInvertidosTeste
+  buscaDiaDeFolgaComDiasFaltantesTeste
+
+  putStrLn "\n--- Testes de Jornada Diaria ---"
+
+  calculaHorasPorDiaTeste
+  calculaHorasPorDia8hTeste
+  calculaHorasSemanaTeste
+  verificaJornadaValidaTeste
+  verificaJornadaInvalidaTeste
+  verificaEscalaValidaTeste
+  verificaEscalaEstruturaInvalidaTeste
+  verificaCargaHorariaDiariaValidaTeste
+  verificaCargaHorariaDiariaInvalidaTeste
+  verificaCargaHorariaSemanalValidaTeste
+  verificaCargaHorariaSemanalInvalidaTeste
