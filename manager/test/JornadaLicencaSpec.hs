@@ -215,6 +215,16 @@ verificaEscalaEstruturaInvalidaTeste :: IO ()
 verificaEscalaEstruturaInvalidaTeste = do
   assert (not (verificaEscalaValida escalaSemanalEstruturaInvalida))
     "Escala com dias e jornadas inconsistentes foi rejeitada."
+  
+verificaCargaHorariaDiariaValidaTeste :: IO ()
+verificaCargaHorariaDiariaValidaTeste = do
+  assert (verificaLegalidadeCargaHorariaDiaria jornadaValida8h)
+    "Carga horária diária válida (8h) foi aceita."
+
+verificaCargaHorariaDiariaInvalidaTeste :: IO ()
+verificaCargaHorariaDiariaInvalidaTeste = do
+  assert (not (verificaLegalidadeCargaHorariaDiaria jornadaInvalidaExcesso))
+    "Carga horária diária acima de 8h foi rejeitada."
 
 
 runLicenseTests :: IO ()
@@ -242,3 +252,5 @@ runLicenseTests = do
   verificaJornadaInvalidaTeste
   verificaEscalaValidaTeste
   verificaEscalaEstruturaInvalidaTeste
+  verificaCargaHorariaDiariaValidaTeste
+  verificaCargaHorariaDiariaInvalidaTeste
