@@ -206,6 +206,15 @@ verificaJornadaInvalidaTeste = do
   assert (not (verificaJornadaValida jornadaInvalidaInvertida))
     "Jornada com horários invertidos foi rejeitada."
 
+verificaEscalaValidaTeste :: IO ()
+verificaEscalaValidaTeste = do
+  assert (verificaEscalaValida escalaSemanalValida40h)
+    "Escala semanal válida foi aceita."
+
+verificaEscalaEstruturaInvalidaTeste :: IO ()
+verificaEscalaEstruturaInvalidaTeste = do
+  assert (not (verificaEscalaValida escalaSemanalEstruturaInvalida))
+    "Escala com dias e jornadas inconsistentes foi rejeitada."
 
 
 runLicenseTests :: IO ()
@@ -231,3 +240,5 @@ runLicenseTests = do
   calculaHorasSemanaTeste
   verificaJornadaValidaTeste
   verificaJornadaInvalidaTeste
+  verificaEscalaValidaTeste
+  verificaEscalaEstruturaInvalidaTeste
