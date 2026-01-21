@@ -121,6 +121,90 @@ buscaDiaDeFolgaComDiasFaltantesTeste = do
   assert (resultado == Just dataFolgaValida)
     "Busca de dia de folga com dias faltantes retornou a data corretamente."
 
+--
+-- SETUP PARA TESTES DE ESCALA SEMANAL E JORNADA DIÁRIA
+-- 
+
+jornadaValida4h :: JornadaDiaria
+jornadaValida4h = JornadaDiaria
+  { inicio = 8
+  , fim = 12
+  }
+
+jornadaValida8h :: JornadaDiaria
+jornadaValida8h = JornadaDiaria
+  { inicio = 8
+  , fim = 16
+  }
+
+jornadaInvalidaInvertida :: JornadaDiaria
+jornadaInvalidaInvertida = JornadaDiaria
+  { inicio = 14
+  , fim = 10
+  }
+
+jornadaInvalidaExcesso :: JornadaDiaria
+jornadaInvalidaExcesso = JornadaDiaria
+  { inicio = 8
+  , fim = 18
+  }
+
+diasSemana :: [Day]
+diasSemana =
+  [ fromGregorian 2024 6 3
+  , fromGregorian 2024 6 4
+  , fromGregorian 2024 6 5
+  , fromGregorian 2024 6 6
+  , fromGregorian 2024 6 7
+  ]
+
+escalaSemanalValida40h :: EscalaSemanal
+escalaSemanalValida40h = EscalaSemanal
+  { idFuncionarioSemanal = "12345678900"
+  , diasTrabalho = diasSemana
+  , jornadas = replicate 5 jornadaValida8h
+  }
+
+escalaSemanalInvalidaHoras :: EscalaSemanal
+escalaSemanalInvalidaHoras = EscalaSemanal
+  { idFuncionarioSemanal = "12345678900"
+  , diasTrabalho = diasSemana
+  , jornadas = replicate 5 jornadaInvalidaExcesso
+  }
+
+escalaSemanalEstruturaInvalida :: EscalaSemanal
+escalaSemanalEstruturaInvalida = EscalaSemanal
+  { idFuncionarioSemanal = "12345678900"
+  , diasTrabalho = diasSemana
+  , jornadas = [jornadaValida8h] -- tamanhos diferentes
+  }
+
+
+
+calculaHorasPorDiaTeste :: IO ()
+calculaHorasPorDiaTeste = do
+  assert (calculaHorasTrabalhadasPorDia jornadaValida4h == 4)
+    "Cálculo de horas diárias (4h) funcionou corretamente."
+
+calculaHorasPorDia8hTeste :: IO ()
+calculaHorasPorDia8hTeste = do
+  assert (calculaHorasTrabalhadasPorDia jornadaValida8h == 8)
+    "Cálculo de horas diárias (8h) funcionou corretamente."
+
+calculaHorasSemanaTeste :: IO ()
+calculaHorasSemanaTeste = do
+  assert (calculaHorasTrabalhadasPorSemana escalaSemanalValida40h == 40)
+    "Cálculo de horas semanais (40h) funcionou corretamente."
+  
+verificaJornadaValidaTeste :: IO ()
+verificaJornadaValidaTeste = do
+  assert (verificaJornadaValida jornadaValida8h)
+    "Jornada válida foi aceita."
+
+verificaJornadaInvalidaTeste :: IO ()
+verificaJornadaInvalidaTeste = do
+  assert (not (verificaJornadaValida jornadaInvalidaInvertida))
+    "Jornada com horários invertidos foi rejeitada."
 
 
 
@@ -138,3 +222,12 @@ runLicenseTests = do
   verificaLegalidadeCicloInvalidoTeste
   verificaLegalidadeCicloMesmoDiaTeste
   verificaLegalidadeCicloDatasInvertidosTeste
+  buscaDiaDeFolgaComDiasFaltantesTeste
+
+  putStrLn "\n--- Testes de Jornada Diaria ---"
+
+  calculaHorasPorDiaTeste
+  calculaHorasPorDia8hTeste
+  calculaHorasSemanaTeste
+  verificaJornadaValidaTeste
+  verificaJornadaInvalidaTeste

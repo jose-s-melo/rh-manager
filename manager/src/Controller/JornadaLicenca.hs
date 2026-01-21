@@ -50,7 +50,7 @@ atualizarCicloFolga futuraFolga cicloFolga
 
 
 calculaHorasTrabalhadasPorDia :: JornadaDiaria -> Int
-calculaHorasTrabalhadas jornadaDiaria =
+calculaHorasTrabalhadasPorDia jornadaDiaria =
     fim jornadaDiaria - inicio jornadaDiaria
 
 calculaHorasTrabalhadasPorSemana :: EscalaSemanal -> Int
@@ -72,7 +72,7 @@ verificaJornadaValida jornada =
 
 verificaLegalidadeCargaHorariaDiaria :: JornadaDiaria -> Bool
 verificaLegalidadeCargaHorariaDiaria jornadaDiaria =
-    let carga = calculaHorasTrabalhadas jornadaDiaria
+    let carga = calculaHorasTrabalhadasPorDia jornadaDiaria
     in carga > 0 && carga <= 8
 
 verificaLegalidadeCargaHorariaSemanal :: EscalaSemanal -> Bool
