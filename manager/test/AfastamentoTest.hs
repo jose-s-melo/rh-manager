@@ -308,6 +308,7 @@ documentacaoForaDaToleranciaTeste = do
   case registrarAfastamento hoje "11111111111" AfastamentoMedico inicio fim "Cirurgia" doc funcionarios afastamentos of
     Left _ -> assert True "Bloqueou documentação enviada após o limite de tolerância."
     Right _ -> assert False "Erro: permitiu documentação fora da tolerância."
+
 -- RUNNER ------------------------------------------------------------
 
 runAfastamentoTests :: IO ()

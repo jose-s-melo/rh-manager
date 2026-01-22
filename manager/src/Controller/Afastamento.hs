@@ -129,8 +129,13 @@ afastamentoAtivoEm :: Day -> CPF -> [Afastamento] -> Bool
 afastamentoAtivoEm dataRef cpf =
   any (\a ->
         cpfFuncionario a == cpf &&
+<<<<<<< HEAD
         dataInicioAfastamento a <= dataRef &&
         dataRef <= dataFimAfastamento a
+=======
+        dataInicio a <= dataRef &&
+        dataRef <= dataFim a
+>>>>>>> a85f2d2 (Controller de Afastamentos e testes concluídos)
       )
 
 -- Atualiza o status de todos os funcionários com base nos afastamentos ativos na data fornecida.
@@ -152,7 +157,11 @@ listarAfastamentos = id
 -- Lista todos os afastamentos ativos em uma data específica.
 listarAfastamentosAtivos :: Day -> [Afastamento] -> [Afastamento]
 listarAfastamentosAtivos dataRef =
+<<<<<<< HEAD
     filter (\a -> dataInicioAfastamento a <= dataRef && dataRef <= dataFimAfastamento a)
+=======
+    filter (\a -> dataInicio a <= dataRef && dataRef <= dataFim a)
+>>>>>>> a85f2d2 (Controller de Afastamentos e testes concluídos)
 
 -- Valida a documentação do afastamento (modelo adotado: data de envio deve estar entre o início do afastamento e até 5 dias após o fim).
 validarDocumentacao :: Afastamento -> Bool
@@ -161,8 +170,13 @@ validarDocumentacao afastamento =
         Nothing -> True
         Just doc ->
             let
+<<<<<<< HEAD
                 inicio = dataInicioAfastamento afastamento
                 fim = dataFimAfastamento afastamento
+=======
+                inicio = dataInicio afastamento
+                fim = dataFim afastamento
+>>>>>>> a85f2d2 (Controller de Afastamentos e testes concluídos)
                 dataDoc = dataEnvioDocumento doc
             in
                 dataDoc >= inicio &&
