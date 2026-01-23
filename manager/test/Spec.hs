@@ -4,6 +4,7 @@ import System.IO (hSetEncoding, stdout, stdin, stderr, utf8)
 
 import Presence
 import Func
+import AfastamentoTest
 import JornadaLicencaSpec
 import FeriasTests
 
@@ -17,6 +18,7 @@ main = do
 
   runPresenceTests
   runFuncionarioTests
+  runAfastamentoTests
   runLicenseTests
   runFeriasTests
 
