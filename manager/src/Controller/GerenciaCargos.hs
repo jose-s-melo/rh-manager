@@ -35,7 +35,6 @@ adicionarCargoValidado novoCargo funcionarios departamentos cargos
     | otherwise =
         Right (novoCargo : cargos)
 
-
 modificarCargo :: Cargo -> [Cargo] -> Either String [Cargo]
 modificarCargo _ [] =
     Left "Erro: Cargo não encontrado para alteração!"

@@ -30,7 +30,6 @@ adicionarDepartamentoValidado novoDepto funcionarios departamentos
     | otherwise =
         Right (novoDepto : departamentos)
 
-
 modificarDepartamento :: Departamento -> [Departamento] -> Either String [Departamento]
 modificarDepartamento _ [] =
     Left "Erro: Departamento não encontrado para alteração!"
