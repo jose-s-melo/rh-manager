@@ -26,14 +26,18 @@ source-repository head
 library
   exposed-modules:
       Controller.ControladorPresenca,
-      Controller.Afastamento
-      Controller.GerenciaFuncionarios
-      Controller.GerenciarFerias
-      Controller.JornadaLicenca
-      Lib
-      Model.TiposDados
-      Util.FeriasService
-      Util.Utilitarios
+      Controller.Afastamento,
+      Controller.GerenciaFuncionarios,
+      Controller.GerenciaCargos,
+      Controller.GerenciaFerias,
+      Controller.GerenciaDepartamentos,
+      Controller.JornadaLicenca,
+      Lib,
+      Model.TiposDados,
+      Util.FeriasService,
+      Util.Utilitarios,
+      Util.PresencaService,
+      Util.BdService
   other-modules:
       Paths_manager
   autogen-modules:

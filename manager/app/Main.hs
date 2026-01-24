@@ -1,8 +1,12 @@
 module Main where
 
 import Util.FeriasService
+import Util.PresencaService
+import Util.BdService
 
 main :: IO ()
 main = do
-  putStrLn "Iniciando sistema de gerenciamento de férias..."
-  iniciarSistemaFerias
+  -- iniciarSistemaFerias
+  -- iniciarSistemaPresenca
+  iniciarSistemaBD
+

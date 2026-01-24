@@ -1,6 +1,8 @@
 module Controller.GerenciaCargos where
 
 import Model.TiposDados
+import Controller.GerenciaFuncionarios
+import Controller.GerenciaDepartamentos
 
 existeCargo :: Id -> [Cargo] -> Bool
 existeCargo _ [] = False
@@ -26,7 +28,7 @@ adicionarCargoValidado
     -> [Cargo]
     -> Either String [Cargo]
 adicionarCargoValidado novoCargo funcionarios departamentos cargos
-    | not (funcionarioExiste (show (idSupervisor novoCargo)) funcionarios) =
+    | not (existeFuncionario (show (idSupervisor novoCargo)) funcionarios) =
         Left "Erro: Supervisor informado não existe no sistema!"
     | not (existeDepartamento (deptoAssociado novoCargo) departamentos) =
         Left "Erro: Departamento associado não existe!"

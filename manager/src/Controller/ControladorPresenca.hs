@@ -49,19 +49,22 @@ horasDoDia :: Presenca -> Double
 horasDoDia p =
   realToFrac (timeOfDayToTime (checkOut p) - timeOfDayToTime (checkIn p)) / 3600
 
-exibirRegistroPresencas :: CPF -> SistemaDePresenca -> IO ()
-exibirRegistroPresencas cpf sistema =
-  case Map.lookup cpf (presencasRegistradas sistema) of
-    Nothing -> putStrLn "Nenhum registro de presença encontrado para este CPF."
-    Just mapaDias -> mapM_ exibirPresenca (Map.toList mapaDias)
-
-exibirPresenca :: (Day, Presenca) -> IO ()
-exibirPresenca (dia, p)
-  | compareceu p = putStrLn $ show dia ++ " - compareceu"
-  | otherwise = putStrLn $ show dia ++ " - ausente - justificativa: " ++ justificativa p
-
 faltasInjustificadas :: CPF -> Day -> Day -> SistemaDePresenca -> Int
 faltasInjustificadas cpf inicio fim sistema =
   length [ () | (dia, p) <- presencas, dia >= inicio, dia <= fim, not (compareceu p), null (justificativa p)]
   where
     presencas = maybe [] Map.toList $ Map.lookup cpf (presencasRegistradas sistema)
+
+faltasDoFuncionario :: CPF -> SistemaDePresenca -> [Day]
+faltasDoFuncionario cpf sistema =
+  case Map.lookup cpf (presencasRegistradas sistema) of
+    Nothing -> []
+    Just mapaDias ->
+      [ dia | (dia, p) <- Map.toList mapaDias, not (compareceu p)]
+
+faltasDoFuncionarioPeriodo :: CPF -> Day -> Day -> SistemaDePresenca -> [Day]
+faltasDoFuncionarioPeriodo cpf inicio fim sistema =
+  case Map.lookup cpf (presencasRegistradas sistema) of
+    Nothing -> []
+    Just mapaDias ->
+      [ dia| (dia, p) <- Map.toList mapaDias, dia >= inicio, dia <= fim, not (compareceu p)]

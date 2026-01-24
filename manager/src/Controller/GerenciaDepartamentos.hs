@@ -1,6 +1,7 @@
 module Controller.GerenciaDepartamentos where
 
 import Model.TiposDados
+import Controller.GerenciaFuncionarios
 
 existeDepartamento :: Id -> [Departamento] -> Bool
 existeDepartamento _ [] = False
@@ -23,7 +24,7 @@ adicionarDepartamentoValidado
     -> [Departamento]
     -> Either String [Departamento]
 adicionarDepartamentoValidado novoDepto funcionarios departamentos
-    | not (funcionarioExiste (show (idGerenteDepto novoDepto)) funcionarios) =
+    | not (existeFuncionario (show (idGerenteDepto novoDepto)) funcionarios) =
         Left "Erro: Gerente informado não existe no sistema!"
     | existeDepartamento (idDepto novoDepto) departamentos =
         Left "Erro: Já existe departamento com esse ID!"
