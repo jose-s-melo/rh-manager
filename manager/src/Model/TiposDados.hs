@@ -49,7 +49,8 @@ data Funcionario = Funcionario{
 data SistemaBancoDadosRH = SistemaBancoDadosRH {
     funcionarios :: [Funcionario],
     cargos :: [Cargo],
-    departamento :: [Departamento]
+    departamento :: [Departamento],
+    afastamentos  :: [Afastamento]
 } deriving (Show, Read)
 
 data Modalidade = Presencial | Remoto deriving (Show, Read, Eq)

@@ -3,9 +3,11 @@ module Util.BdService where
 import Controller.GerenciaFuncionarios
 import Controller.GerenciaDepartamentos
 import Controller.GerenciaCargos
+import Controller.Afastamento
 import Model.TiposDados
 import Util.Utilitarios
 import Data.Time
+import qualified Data.Map as Map
 
 -------------------------------------------------
 -- SISTEMA PRINCIPAL
@@ -13,7 +15,7 @@ import Data.Time
 
 iniciarSistemaBD :: IO ()
 iniciarSistemaBD =
-  loop (SistemaBancoDadosRH [] [] [])
+  loop (SistemaBancoDadosRH [] [] [] [])
 
 loop :: SistemaBancoDadosRH -> IO ()
 loop sistema = do
@@ -24,9 +26,9 @@ loop sistema = do
   putStrLn "3 - Gerenciar cargos"
   putStrLn "0 - Sair"
 
-  opcao <- lerLinha "Selecione uma opção"
+  op <- lerLinha "Selecione uma opção"
 
-  case opcao of
+  case op of
     "1" -> menuFuncionariosLoop sistema >>= loop
     "2" -> menuDepartamentosLoop sistema >>= loop
     "3" -> menuCargosLoop sistema >>= loop
@@ -39,25 +41,35 @@ loop sistema = do
 
 menuFuncionariosLoop :: SistemaBancoDadosRH -> IO SistemaBancoDadosRH
 menuFuncionariosLoop sistema = do
-  cabecalho "FUNCIONÁRIOS"
+  cabecalho "MENU - FUNCIONÁRIOS"
 
   putStrLn "1 - Cadastrar"
   putStrLn "2 - Alterar"
   putStrLn "3 - Buscar"
   putStrLn "4 - Excluir"
   putStrLn "5 - Listar"
+  putStrLn "6 - Registrar afastamento"
+  putStrLn "7 - Encerrar afastamento"
+  putStrLn "8 - Listar funcionários afastados"
+  putStrLn "9 - Desligar funcionário"
+  putStrLn "10 - Listar funcionários desligados"
   putStrLn "0 - Voltar"
 
   op <- lerLinha "Escolha"
 
   case op of
-    "1" -> cadastrarFuncionarioUI sistema >>= pausaEVolta menuFuncionariosLoop
-    "2" -> alterarFuncionarioUI sistema >>= pausaEVolta menuFuncionariosLoop
-    "3" -> buscarFuncionarioUI sistema >> pause >> menuFuncionariosLoop sistema
-    "4" -> excluirFuncionarioUI sistema >>= pausaEVolta menuFuncionariosLoop
-    "5" -> listarFuncionariosUI sistema >> pause >> menuFuncionariosLoop sistema
-    "0" -> return sistema
-    _   -> msgErro "Opção inválida." >> pause >> menuFuncionariosLoop sistema
+    "1"  -> cadastrarFuncionarioUI sistema >>= pausaEVolta menuFuncionariosLoop
+    "2"  -> alterarFuncionarioUI sistema >>= pausaEVolta menuFuncionariosLoop
+    "3"  -> buscarFuncionarioUI sistema >> pause >> menuFuncionariosLoop sistema
+    "4"  -> excluirFuncionarioUI sistema >>= pausaEVolta menuFuncionariosLoop
+    "5"  -> listarFuncionariosUI sistema >> pause >> menuFuncionariosLoop sistema
+    "6"  -> registrarAfastamentoUI sistema >>= pausaEVolta menuFuncionariosLoop
+    "7"  -> encerrarAfastamentoUI sistema >>= pausaEVolta menuFuncionariosLoop
+    "8"  -> listarAfastadosUI sistema >> pause >> menuFuncionariosLoop sistema
+    "9"  -> desligarFuncionarioUI sistema >>= pausaEVolta menuFuncionariosLoop
+    "10" -> listarDesligadosUI sistema >> pause >> menuFuncionariosLoop sistema
+    "0"  -> return sistema
+    _    -> msgErro "Opção inválida." >> pause >> menuFuncionariosLoop sistema
 
 -------------------------------------------------
 -- MENU DEPARTAMENTOS
@@ -65,7 +77,7 @@ menuFuncionariosLoop sistema = do
 
 menuDepartamentosLoop :: SistemaBancoDadosRH -> IO SistemaBancoDadosRH
 menuDepartamentosLoop sistema = do
-  cabecalho "DEPARTAMENTOS"
+  cabecalho "MENU - DEPARTAMENTOS"
 
   putStrLn "1 - Cadastrar"
   putStrLn "2 - Alterar"
@@ -91,7 +103,7 @@ menuDepartamentosLoop sistema = do
 
 menuCargosLoop :: SistemaBancoDadosRH -> IO SistemaBancoDadosRH
 menuCargosLoop sistema = do
-  cabecalho "CARGOS"
+  cabecalho "MENU - CARGOS"
 
   putStrLn "1 - Cadastrar"
   putStrLn "2 - Alterar"
@@ -172,6 +184,114 @@ listarFuncionariosUI sistema =
   if null (funcionarios sistema)
     then msgInfo "Nenhum funcionário cadastrado."
     else mapM_ exibirFuncionario (funcionarios sistema)
+
+-------------------------------------------------
+-- AFASTAMENTOS - UI
+-------------------------------------------------
+
+registrarAfastamentoUI :: SistemaBancoDadosRH -> IO SistemaBancoDadosRH
+registrarAfastamentoUI sistema = do
+  cabecalho "REGISTRAR AFASTAMENTO"
+
+  hoje <- utctDay <$> getCurrentTime
+  cpf  <- lerCPF
+  tipo <- lerTipoAfastamento
+  ini  <- lerData "Data início"
+  fim  <- lerData "Data fim"
+  desc <- lerLinha "Descrição"
+
+  doc <- obterDocumentacaoObrigatoria tipo
+
+  let resultado =
+        registrarAfastamento
+          hoje
+          cpf
+          tipo
+          ini
+          fim
+          desc
+          doc
+          (funcionarios sistema)
+          (afastamentos sistema)
+
+  case resultado of
+    Left err ->
+      msgErro err >> return sistema
+
+    Right (funcs, afs) ->
+      msgSucesso "Afastamento registrado com sucesso."
+        >> return sistema
+             { funcionarios = funcs
+             , afastamentos = afs
+             }
+
+tipoExigeDocumentacao :: TipoAfastamento -> Bool
+tipoExigeDocumentacao AfastamentoMedico   = True
+tipoExigeDocumentacao AcidenteDeTrabalho  = True
+tipoExigeDocumentacao AusenciaJustificada = True
+tipoExigeDocumentacao _                   = False
+
+obterDocumentacaoObrigatoria :: TipoAfastamento -> IO (Maybe Documentacao)
+obterDocumentacaoObrigatoria tipo
+  | tipoExigeDocumentacao tipo = do
+      doc <- lerDocumentacaoOpcional
+      case doc of
+        Nothing ->
+          msgErro "Este tipo de afastamento exige documentação."
+            >> obterDocumentacaoObrigatoria tipo
+        Just _ ->
+          return doc
+  | otherwise =
+      lerDocumentacaoOpcional
+
+
+encerrarAfastamentoUI :: SistemaBancoDadosRH -> IO SistemaBancoDadosRH
+encerrarAfastamentoUI sistema = do
+  cabecalho "ENCERRAR AFASTAMENTO"
+
+  hoje <- utctDay <$> getCurrentTime
+  idAf <- lerInt "ID do afastamento"
+
+  case encerrarAfastamento hoje idAf (funcionarios sistema) (afastamentos sistema) of
+    Left err -> msgErro err >> return sistema
+    Right (funcs, afs) ->
+      msgSucesso "Afastamento encerrado."
+        >> return sistema { funcionarios = funcs, afastamentos = afs }
+
+listarAfastadosUI :: SistemaBancoDadosRH -> IO ()
+listarAfastadosUI sistema =
+  let afastados = filter (\f -> statusFunc f == Afastado) (funcionarios sistema)
+  in if null afastados
+        then msgInfo "Nenhum funcionário afastado."
+        else mapM_ exibirFuncionario afastados
+
+
+
+-------------------------------------------------
+-- DESLIGAMENTO - UI
+-------------------------------------------------
+
+desligarFuncionarioUI :: SistemaBancoDadosRH -> IO SistemaBancoDadosRH
+desligarFuncionarioUI sistema = do
+  cabecalho "DESLIGAR FUNCIONÁRIO"
+  cpf <- lerCPF
+
+  case buscarFuncionario cpf (funcionarios sistema) of
+    Nothing -> msgErro "Funcionário não encontrado." >> return sistema
+    Just f ->
+      let f' = f { statusFunc = Desligado }
+      in case modificarFuncionario f' (funcionarios sistema) of
+           Left err -> msgErro err >> return sistema
+           Right fs ->
+             msgSucesso "Funcionário desligado."
+               >> return sistema { funcionarios = fs }
+
+listarDesligadosUI :: SistemaBancoDadosRH -> IO ()
+listarDesligadosUI sistema =
+  let desligados = filter (\f -> statusFunc f == Desligado) (funcionarios sistema)
+  in if null desligados
+        then msgInfo "Nenhum funcionário desligado."
+        else mapM_ exibirFuncionario desligados
 
 -------------------------------------------------
 -- DEPARTAMENTOS - UI
@@ -355,6 +475,37 @@ lerCargo = do
     , idSupervisor = sup
     , deptoAssociado = depto
     }
+
+lerTipoAfastamento :: IO TipoAfastamento
+lerTipoAfastamento = do
+  putStrLn "1 - Médico"
+  putStrLn "2 - Acidente de trabalho"
+  putStrLn "3 - Licença maternidade"
+  putStrLn "4 - Licença paternidade"
+  putStrLn "5 - Ausência justificada"
+
+  op <- lerLinha "Tipo"
+
+  case op of
+    "1" -> return AfastamentoMedico
+    "2" -> return AcidenteDeTrabalho
+    "3" -> return LicencaMaternidade
+    "4" -> return LicencaPaternidade
+    "5" -> return AusenciaJustificada
+    _   -> msgErro "Opção inválida." >> lerTipoAfastamento
+
+lerDocumentacaoOpcional :: IO (Maybe Documentacao)
+lerDocumentacaoOpcional = do
+  temDoc <- lerSN "Deseja informar documentação?"
+  if not temDoc
+     then return Nothing
+     else do
+       desc <- lerLinha "Descrição do documento"
+       dataEnvio <- lerData "Data de envio do documento"
+       return $ Just Documentacao
+         { descricaoDocumento = desc
+         , dataEnvioDocumento = dataEnvio
+         }
 
 -------------------------------------------------
 -- EXIBIÇÃO
