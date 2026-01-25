@@ -32,12 +32,12 @@ library
       Controller.GerenciaFerias,
       Controller.GerenciaDepartamentos,
       Controller.JornadaLicenca,
+      Controller.GerenciaLicencaEJornadas,
+      Controller.ConsultasBasicas,
       Lib,
       Model.TiposDados,
-      Util.FeriasService,
       Util.Utilitarios,
-      Util.PresencaService,
-      Util.BdService
+      System.SistemaRH
   other-modules:
       Paths_manager
   autogen-modules:

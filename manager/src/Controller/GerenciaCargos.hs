@@ -1,14 +1,7 @@
 module Controller.GerenciaCargos where
 
 import Model.TiposDados
-import Controller.GerenciaFuncionarios
-import Controller.GerenciaDepartamentos
-
-existeCargo :: Id -> [Cargo] -> Bool
-existeCargo _ [] = False
-existeCargo idBuscado (c:cs)
-    | idCargo c == idBuscado = True
-    | otherwise = existeCargo idBuscado cs
+import Controller.ConsultasBasicas
 
 adicionarCargo :: Cargo -> [Cargo] -> Either String [Cargo]
 adicionarCargo novoCargo listaCargos
@@ -23,17 +16,18 @@ adicionarCargo novoCargo listaCargos
 
 adicionarCargoValidado
     :: Cargo
-    -> [Funcionario]
     -> [Departamento]
     -> [Cargo]
     -> Either String [Cargo]
-adicionarCargoValidado novoCargo funcionarios departamentos cargos
-    | not (existeFuncionario (show (idSupervisor novoCargo)) funcionarios) =
-        Left "Erro: Supervisor informado não existe no sistema!"
+adicionarCargoValidado novoCargo departamentos cargos
     | not (existeDepartamento (deptoAssociado novoCargo) departamentos) =
         Left "Erro: Departamento associado não existe!"
     | existeCargo (idCargo novoCargo) cargos =
         Left "Erro: Já existe cargo com esse ID!"
+    | salario novoCargo < 0 =
+        Left "Erro: Salário não pode ser negativo!"
+    | cargaHoraria novoCargo <= 0 =
+        Left "Erro: Carga horária inválida!"
     | otherwise =
         Right (novoCargo : cargos)
 

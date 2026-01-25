@@ -3,17 +3,11 @@ module Controller.GerenciaFuncionarios where
 import Data.List(find)
 import Model.TiposDados
 import Data.Char(isDigit)
+import Controller.ConsultasBasicas
 
 cpfValido :: String -> Bool
 cpfValido cpf = (length cpf == 11) && (all isDigit cpf)
 -- Recebe um CPF. Verifica se é algum ID da lista.
-
-
-existeFuncionario :: String -> [Funcionario] -> Bool
-existeFuncionario _ [] = False
-existeFuncionario idPossivel (l:ls) 
-    | (idFunc l == idPossivel) = True
-    | otherwise = existeFuncionario idPossivel ls
 
 -- Recebe um novo funcionário e acrescenta-o na lista dos funcionários. Retorna a lista após a adição.
 adicionarFuncionario :: Funcionario -> [Funcionario] -> Either String [Funcionario]
@@ -21,6 +15,25 @@ adicionarFuncionario novoFuncionario listaFuncionarios
     | not (cpfValido (idFunc novoFuncionario)) = Left "Erro: Formato CPF incorreto! Deve ser inserido 11 digitos! "
     | existeFuncionario (idFunc novoFuncionario) listaFuncionarios == True = Left "Erro: Já existe  funcionário com o CPF referido!"
     | otherwise = Right (novoFuncionario : listaFuncionarios)
+
+adicionarFuncionarioValidado
+    :: Funcionario
+    -> [Cargo]
+    -> [Departamento]
+    -> [Funcionario]
+    -> Either String [Funcionario]
+adicionarFuncionarioValidado novo cargos departamentos funcionarios
+    | not (cpfValido (idFunc novo)) =
+        Left "Erro: CPF inválido! Deve conter 11 dígitos."
+    | existeFuncionario (idFunc novo) funcionarios =
+        Left "Erro: Já existe funcionário com esse CPF!"
+    | not (existeCargo (cargoFunc novo) cargos) =
+        Left "Erro: Cargo informado não existe!"
+    | not (existeDepartamento (deptoFunc novo) departamentos) =
+        Left "Erro: Departamento informado não existe!"
+    | otherwise =
+        adicionarFuncionario novo funcionarios
+
 
 --  Recebe um funcionário com ID já existente na lista e com novos dados. Retira esse "antigo" e adiciona o "novo" funcionário.
 modificarFuncionario :: Funcionario -> [Funcionario] -> Either String [Funcionario]

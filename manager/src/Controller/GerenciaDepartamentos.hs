@@ -1,13 +1,7 @@
 module Controller.GerenciaDepartamentos where
 
 import Model.TiposDados
-import Controller.GerenciaFuncionarios
-
-existeDepartamento :: Id -> [Departamento] -> Bool
-existeDepartamento _ [] = False
-existeDepartamento idBuscado (d:ds)
-    | idDepto d == idBuscado = True
-    | otherwise = existeDepartamento idBuscado ds
+import Controller.ConsultasBasicas
 
 adicionarDepartamento :: Departamento -> [Departamento] -> Either String [Departamento]
 adicionarDepartamento novoDepto listaDeptos
@@ -24,12 +18,18 @@ adicionarDepartamentoValidado
     -> [Departamento]
     -> Either String [Departamento]
 adicionarDepartamentoValidado novoDepto funcionarios departamentos
-    | not (existeFuncionario (show (idGerenteDepto novoDepto)) funcionarios) =
+    | gerenteInvalido =
         Left "Erro: Gerente informado não existe no sistema!"
     | existeDepartamento (idDepto novoDepto) departamentos =
         Left "Erro: Já existe departamento com esse ID!"
     | otherwise =
         Right (novoDepto : departamentos)
+  where
+    gerenteInvalido =
+      case idGerenteDepto novoDepto of
+        Nothing   -> False
+        Just idG  -> not (existeFuncionario (show idG) funcionarios)
+
 
 modificarDepartamento :: Departamento -> [Departamento] -> Either String [Departamento]
 modificarDepartamento _ [] =

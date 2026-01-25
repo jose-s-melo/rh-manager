@@ -2,10 +2,15 @@ module Controller.GerenciaLicencaEJornadas where
 
 import Model.TiposDados
 import Controller.JornadaLicenca
+import Data.Time
+import Data.List(find)
+
+sistemaJornadaVazio = SistemaJornadaLicenca [] []
+sistemaJornadaVazio :: SistemaJornadaLicenca
 
 -- Licenças
 
-adicionaLicenca :: Funcionario -> Licenca -> SistemaJornadaLicenca -> SistemaJornadaLicenca
+adicionaLicenca :: Funcionario -> Licenca -> SistemaJornadaLicenca -> Either String SistemaJornadaLicenca
 adicionaLicenca func novaLicenca sistema
     | not (verificarSeLicencaValida novaLicenca) =
         Left "Erro Licença inválida"
@@ -14,7 +19,7 @@ adicionaLicenca func novaLicenca sistema
             licencas = novaLicenca : licencas sistema
         }
 
-removerLicenca :: Licenca -> SistemaJornadaLicenca -> SistemaJornadaLicenca
+removerLicenca :: Licenca -> SistemaJornadaLicenca -> Either String SistemaJornadaLicenca
 removerLicenca licencaParaRemover sistema
     | licencaParaRemover `notElem` licencas sistema =
         Left "Erro Licença não encontrada"
@@ -32,7 +37,7 @@ verificaFuncionarioEmLicenca cpf sistema =
 
 -- Jornadas/Escalas
 
-adicionaJornada :: EscalaSemanal -> SistemaJornadaLicenca -> SistemaJornadaLicenca
+adicionaJornada :: EscalaSemanal -> SistemaJornadaLicenca -> Either String SistemaJornadaLicenca
 adicionaJornada novaJornada sistema
     | not (verificaEscalaValida novaJornada) =
         Left "Erro: Escala inválida"
@@ -43,7 +48,7 @@ adicionaJornada novaJornada sistema
             jornadasSemanais = novaJornada : jornadasSemanais sistema
         }
 
-removerJornada :: EscalaSemanal -> SistemaJornadaLicenca -> SistemaJornadaLicenca
+removerJornada :: EscalaSemanal -> SistemaJornadaLicenca -> Either String SistemaJornadaLicenca
 removerJornada jornadaParaRemover sistema
     | jornadaParaRemover `notElem` jornadasSemanais sistema =
         Left "Erro: Jornada não encontrada."
@@ -54,7 +59,7 @@ removerJornada jornadaParaRemover sistema
         }
 
 listarJornadas :: SistemaJornadaLicenca -> [EscalaSemanal]
-listarJornadas sistema = jornadas sistema
+listarJornadas sistema = jornadasSemanais sistema
 
 buscaFolgaDoFuncionario :: CPF -> SistemaJornadaLicenca -> Maybe Day
 buscaFolgaDoFuncionario cpf sistema =
@@ -71,7 +76,7 @@ criaEscala cpf dias horaEntrada horaSaida ultimaFolga proximaFolga =
     let
         jornadaDiaria = JornadaDiaria {
             inicio = horaEntrada,
-            fim = horaSaida
+            final = horaSaida
         }
 
         jornadasCriadas = replicate (length dias) jornadaDiaria

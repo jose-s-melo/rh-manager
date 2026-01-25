@@ -13,7 +13,6 @@ data Cargo = Cargo{
     funcaoCargo :: String,
     cargaHoraria :: Int,
     salario :: Double,
-    idSupervisor :: Id,
     deptoAssociado :: Id
 } deriving (Show,Read, Eq)
 
@@ -21,7 +20,7 @@ data Departamento = Departamento{
     idDepto :: Id,
     nomeDepto :: String,
     descricaoDepto :: String,
-    idGerenteDepto :: Id, -- Chave estrangeira. Referência ao Funcionario.
+    idGerenteDepto :: Maybe Id, -- Chave estrangeira. Referência ao Funcionario.
     qtdFuncionarioDepto :: Int,
     registroPresencaDepto :: Registro -- Esse aqui não sei bem qual tipo...
 } deriving (Show,Read,Eq)
@@ -50,8 +49,11 @@ data SistemaBancoDadosRH = SistemaBancoDadosRH {
     funcionarios :: [Funcionario],
     cargos :: [Cargo],
     departamento :: [Departamento],
-    afastamentos  :: [Afastamento]
-} deriving (Show, Read)
+    afastamentos  :: [Afastamento],
+    sistemaJornada :: SistemaJornadaLicenca,
+    sistemaFerias  :: GerenciadorFerias,
+    sistemaPresenca :: SistemaDePresenca
+} deriving (Show)
 
 data SistemaJornadaLicenca = SistemaJornadaLicenca {
     licencas :: [Licenca],
@@ -109,7 +111,7 @@ data CicloFolga = Folga {
 
 data JornadaDiaria = JornadaDiaria {
     inicio :: Int, -- hora (0-23)
-    fim :: Int  -- hora (0-23)
+    final :: Int  -- hora (0-23)
 } deriving (Show, Read, Eq)
 
 data EscalaSemanal = EscalaSemanal {

@@ -1,12 +1,8 @@
 module Main where
 
-import Util.FeriasService
-import Util.PresencaService
-import Util.BdService
+import System.SistemaRH
 
 main :: IO ()
 main = do
-  -- iniciarSistemaFerias
-  -- iniciarSistemaPresenca
-  iniciarSistemaBD
+  iniciarSistemaRH
 
