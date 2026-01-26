@@ -13,7 +13,6 @@ data Cargo = Cargo{
     funcaoCargo :: String,
     cargaHoraria :: Int,
     salario :: Double,
-    idSupervisor :: Id,
     deptoAssociado :: Id
 } deriving (Show,Read, Eq)
 
@@ -21,7 +20,7 @@ data Departamento = Departamento{
     idDepto :: Id,
     nomeDepto :: String,
     descricaoDepto :: String,
-    idGerenteDepto :: Id, -- Chave estrangeira. Referência ao Funcionario.
+    idGerenteDepto :: Maybe Id, -- Chave estrangeira. Referência ao Funcionario.
     qtdFuncionarioDepto :: Int,
     registroPresencaDepto :: Registro -- Esse aqui não sei bem qual tipo...
 } deriving (Show,Read,Eq)
@@ -49,8 +48,17 @@ data Funcionario = Funcionario{
 data SistemaBancoDadosRH = SistemaBancoDadosRH {
     funcionarios :: [Funcionario],
     cargos :: [Cargo],
-    departamento :: [Departamento]
-} deriving (Show, Read)
+    departamento :: [Departamento],
+    afastamentos  :: [Afastamento],
+    sistemaJornada :: SistemaJornadaLicenca,
+    sistemaFerias  :: GerenciadorFerias,
+    sistemaPresenca :: SistemaDePresenca
+} deriving (Show)
+
+data SistemaJornadaLicenca = SistemaJornadaLicenca {
+    licencas :: [Licenca],
+    jornadasSemanais :: [EscalaSemanal]
+} deriving (Show, Read, Eq)
 
 data Modalidade = Presencial | Remoto deriving (Show, Read, Eq)
 
@@ -88,6 +96,7 @@ data Afastamento = Afastamento {
 data TiposDeLicenca = Casamento | Maternidade | Paternidade | Atestado | Luto | DoacaoSangue deriving (Show, Read, Eq)
 
 data Licenca = Licenca {
+    funcionarioLicenca :: CPF,
     tipoLicensa :: TiposDeLicenca,
     dataInicio :: Day,
     dataFim :: Day,
@@ -102,13 +111,14 @@ data CicloFolga = Folga {
 
 data JornadaDiaria = JornadaDiaria {
     inicio :: Int, -- hora (0-23)
-    fim :: Int  -- hora (0-23)
+    final :: Int  -- hora (0-23)
 } deriving (Show, Read, Eq)
 
 data EscalaSemanal = EscalaSemanal {
     idFuncionarioSemanal :: CPF,
     diasTrabalho :: [Day],
-    jornadas :: [JornadaDiaria]
+    jornadas :: [JornadaDiaria],
+    cicloFolga :: CicloFolga
 } deriving (Show, Read, Eq)
 
 data StatusFerias = Planejada| EmAndamento| Concluida deriving (Show, Read, Eq)

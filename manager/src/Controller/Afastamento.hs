@@ -3,7 +3,7 @@ module Controller.Afastamento where
 import Model.TiposDados
 import Data.Time(Day, addDays)
 import Data.List (find)
-import Controller.GerenciaFuncionarios (buscarFuncionario, modificarFuncionario)
+import Controller.GerenciaFuncionarios
 
 -- Define a tolerância para envio de documentação após o término do afastamento (em dias).
 toleranciaDocumentacao :: Integer
@@ -17,6 +17,12 @@ novoIdAfastamento afastamentos = maximum (map idAfastamento afastamentos) + 1
 -- Valida se o período de afastamento é válido (data de início anterior ou igual à data de fim).
 validarPeriodoAfastamento :: Afastamento -> Bool
 validarPeriodoAfastamento a = dataInicioAfastamento a <= dataFimAfastamento a
+
+tipoExigeDocumentacao :: TipoAfastamento -> Bool
+tipoExigeDocumentacao AfastamentoMedico   = True
+tipoExigeDocumentacao AcidenteDeTrabalho  = True
+tipoExigeDocumentacao AusenciaJustificada = True
+tipoExigeDocumentacao _                   = False
 
 -- Verifica se dois afastamentos conflitam (mesmo funcionário e períodos que se sobrepõem).
 conflita :: Afastamento -> Afastamento -> Bool  

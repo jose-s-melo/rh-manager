@@ -2,8 +2,7 @@ module Controller.JornadaLicenca where
 
 import Model.TiposDados
 import Data.Time (Day, diffDays)
-import Data.Bool (Bool(False, True))
-import Model.TiposDados (JornadaDiaria)
+import Data.Bool
 
 -- Licença
 
@@ -51,7 +50,7 @@ atualizarCicloFolga futuraFolga cicloFolga
 
 calculaHorasTrabalhadasPorDia :: JornadaDiaria -> Int
 calculaHorasTrabalhadasPorDia jornadaDiaria =
-    fim jornadaDiaria - inicio jornadaDiaria
+    final jornadaDiaria - inicio jornadaDiaria
 
 calculaHorasTrabalhadasPorSemana :: EscalaSemanal -> Int
 calculaHorasTrabalhadasPorSemana escalaSemanal =
@@ -62,12 +61,15 @@ verificaEscalaValida :: EscalaSemanal -> Bool
 verificaEscalaValida escala =
     length (diasTrabalho escala) == length (jornadas escala)
     && all verificaJornadaValida (jornadas escala)
+    && all verificaLegalidadeCargaHorariaDiaria (jornadas escala)
+    && calculaHorasTrabalhadasPorSemana escala <= 44
+    && verificaLegalidadeDeCicloFolga (cicloFolga escala)
 
 verificaJornadaValida :: JornadaDiaria -> Bool
 verificaJornadaValida jornada =
     inicio jornada >= 0 &&
-    fim jornada <= 23 &&
-    fim jornada > inicio jornada
+    final jornada <= 23 &&
+    final jornada > inicio jornada
 
 
 verificaLegalidadeCargaHorariaDiaria :: JornadaDiaria -> Bool

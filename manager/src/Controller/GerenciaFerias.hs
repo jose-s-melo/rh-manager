@@ -1,4 +1,4 @@
-module Controller.GerenciarFerias where
+module Controller.GerenciaFerias where
 
 import Model.TiposDados
 import Data.Time
